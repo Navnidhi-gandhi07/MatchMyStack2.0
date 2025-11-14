@@ -5,6 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import logging
+import os
 
 # Import routers
 from app.api.routes import auth, users, resumes, projects, chat, oauth
@@ -17,20 +18,22 @@ from app.db.session import engine
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create DB tables in dev
+# Create DB tables
 Base.metadata.create_all(bind=engine)
 
 # Create FastAPI app
 app = FastAPI(title="MatchMyStack - Backend API", version="1.0.0")
 
-# CORS origins
+# ✅ UPDATED: CORS origins with 8080 as primary dev port
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080")
 origins = [
-    "http://localhost:8080",
+    "http://localhost:8080",       # ✅ Primary dev frontend
     "http://127.0.0.1:8080",
-    "http://localhost:5173",
+    "http://localhost:5173",       # Alternate Vite port
     "http://127.0.0.1:5173",
-    "http://localhost:8000",
+    "http://localhost:8000",       # Backend dev
     "http://127.0.0.1:8000",
+    FRONTEND_URL,                  # Production frontend URL from environment
 ]
 
 # Add CORS middleware
@@ -56,6 +59,16 @@ app.include_router(resumes.router)
 app.include_router(projects.router)
 app.include_router(match_router)
 app.include_router(chat.router)
+
+# Root endpoint
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "message": "MatchMyStack API",
+        "version": "1.0.0",
+        "status": "running"
+    }
 
 # Health check endpoint
 @app.get("/ping")
