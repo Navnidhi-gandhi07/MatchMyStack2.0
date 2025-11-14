@@ -1,8 +1,8 @@
 [build]
-  command = "npm install && npm run build:client"
-  publish = "dist"
+     command = "cd matchmystack-fd/client && npm install && npm run build:client"
+     publish = "matchmystack-fd/client/dist"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+   [[redirects]]
+     from = "/*"
+     to = "/index.html"
+     status = 200
